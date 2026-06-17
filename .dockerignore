@@ -1,0 +1,78 @@
+# VCS
+.git/
+.gitignore
+.gitattributes
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+
+# Build artifacts
+dist/
+build/
+.python-version
+
+# Test & coverage
+.coverage
+htmlcov/
+.coveragerc
+sitecustomize.py
+memorygraph.pth
+
+# Docs (not needed at build time)
+docs/
+*.md
+!README.md
+README_zh.md
+
+# CI/CD
+.github/
+
+# Dev config files (not needed for build)
+Dockerfile
+docker-compose.yml
+Makefile
+MANIFEST.in
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md
+CLAUDE.md
+
+# Tests (not needed at build time)
+tests/
+
+# Systemd units (not needed at build time)
+systemd/
+
+# IDE/editor
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# CodeGraph internal
+.codegraph/
+entities.json
+mempalace.yaml
+
+# Claude/local config
+.claude/
+.claude.json
+skills-lock.json
+.agents/
+
+# memorygraph runtime data
+.memorygraph/
+
+# Memory
+memory/
+
+# Scratch/temp
+goal.txt
+workflow.txt
+start.sh

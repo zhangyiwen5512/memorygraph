@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.venv*/
+dist/
+build/
+
+# memorygraph
+.memorygraph/
+.coverage
+htmlcov/
+.coveragerc
+sitecustomize.py
+memorygraph.pth
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CodeGraph generated
+.codegraph/
+entities.json
+mempalace.yaml
+
+# Claude/internal config (not for publishing)
+.claude.json
+.claude/settings.json
+skills-lock.json
+.agents/
+.claude/skills/
+CLAUDE.md
+
+# Scratch/temp files
+goal.txt
+workflow.txt
+start.sh
+
+# Auto-generated docs & logs (not for publishing)
+docs/last-coverage.txt
+docs/last-test-summary.txt
+docs/tech-report-*.md
+docs/iteration-log.md
+docs/benchmark-baseline.json
+docs/backlog.md
+CHANGELOG.md
+
+# PyPI / packaging (not publishing to PyPI)
+MANIFEST.in
+CONTRIBUTING.md
+.github/workflows/pypi-publish.yml
+
+# DB WAL files
+*.db-shm
+*.db-wal
+SECURITY.md
+Makefile

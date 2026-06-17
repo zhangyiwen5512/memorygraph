@@ -1,0 +1,179 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "memorygraph"
+version = "0.0.1"
+description = "Local code knowledge graph with semantic layer — index, query, and navigate codebases"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "memorygraph contributors"},
+]
+keywords = ["code-graph", "static-analysis", "knowledge-graph", "code-navigation", "semantic-search"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Compilers",
+    "Topic :: Software Development :: Indexing",
+    "Framework :: AsyncIO",
+]
+dependencies = [
+    "tree-sitter>=0.23.0",
+    "click>=8.0",
+    "mcp>=1.0.0",
+    "watchdog>=4.0.0",
+    "radon>=6.0",
+    "filelock>=3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/memorygraph/memorygraph"
+Repository = "https://github.com/memorygraph/memorygraph"
+Issues = "https://github.com/memorygraph/memorygraph/issues"
+Documentation = "https://github.com/memorygraph/memorygraph/blob/master/docs/USER_GUIDE.md"
+
+[project.optional-dependencies]
+web = [
+    "uvicorn>=0.24",
+]
+postgresql = [
+    "psycopg2-binary>=2.9",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=7.0",
+    "pytest-timeout>=2.0",
+    "coverage>=7.0",
+    "bandit>=1.7",
+]
+embedding = [
+    "sentence-transformers>=2.7",
+    "torch>=2.0",
+    "transformers>=4.40",
+    "huggingface-hub>=0.20",
+]
+all = [
+    "memorygraph[dev,embedding,web,postgresql]",
+]
+security = [
+    "bandit>=1.7",
+    "pip-audit>=2.7",
+]
+
+[project.scripts]
+memorygraph = "memorygraph.cli.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "F",      # pyflakes (unused imports, variables)
+    "W",      # pycodestyle warnings
+    "I",      # isort (import sorting)
+    "N",      # pep8-naming
+    "B",      # flake8-bugbear (common bugs)
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/memorygraph/cli/main.py" = ["E402"]  # intentional: registry after cli definition
+"__init__.py" = ["F401"]  # re-exports
+"tests/*.py" = ["SIM117"]  # nested with for mock setup: readability over ruff preference
+"tests/fixtures/*.py" = ["E702"]  # intentional semicolons in test fixture (minified code)
+"tests/bench/*.py" = ["SIM115"]  # benchmark script context manager preference
+"tests/test_batch.py" = ["SIM115"]  # pre-existing test file open pattern
+"tests/test_conversation.py" = ["SIM115"]  # pre-existing test file open pattern
+"tests/test_extractor_python.py" = ["SIM115"]  # pre-existing test file open pattern
+"tests/test_parallel_parser.py" = ["SIM115"]  # pre-existing test file open pattern
+"tests/test_pipeline.py" = ["SIM115", "B017"]  # pre-existing test patterns
+"tests/test_ts_parser.py" = ["SIM115"]  # pre-existing test file open pattern
+"tests/test_manager.py" = ["B017"]  # pre-existing test assert pattern
+"tests/test_mcp_server.py" = ["SIM105"]  # pre-existing test suppress pattern
+"tests/test_web_server.py" = ["SIM105"]  # pre-existing test suppress pattern
+"tests/test_lsif.py" = ["E741"]  # pre-existing ambiguous variable name
+"tests/test_plugins.py" = ["E741"]  # pre-existing ambiguous variable name
+"tests/test_patterns.py" = ["N802"]  # pre-existing test function naming
+"tests/test_coverage_push.py" = ["E402"]  # intentional import position for mocks
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+follow_untyped_imports = false
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+check_untyped_defs = true
+warn_return_any = false
+warn_unused_ignores = false
+
+[tool.bandit]
+exclude_dirs = ["tests/", ".venv*/", "build/", "dist/", ".eggs/"]
+skips = [
+    "B101",  # assert used in tests (legitimate)
+    "B311",  # random used in synthetic benchmark gen (not security-critical)
+    "B608",  # all table name f-strings use internal SYMBOL_TABLES constants, not user input
+    "B603",  # subprocess calls use argument lists without shell=True (safe pattern)
+]
+
+[tool.pip-audit]
+# Ignore vulnerabilities fixed in newer versions not yet compatible
+# Format: PYSEC-YYYY-NNNNN (comma-separated)
+ignore-vulns = []
+
+[tool.vulture]
+exclude = ["tests/", ".venv*/", "build/", "dist/"]
+ignore_names = [
+    "do_GET",
+    "do_DELETE",
+    "log_message",
+    "publish",
+    "get_connection_string",
+    "exc_type",           # context manager __exit__ protocol
+    "exc_val",            # context manager __exit__ protocol
+    "exc_tb",             # context manager __exit__ protocol
+    "plugins_list",       # CLI command, referenced via Click decorator
+    "_worker_parse_one",  # multiprocessing pool worker
+    "_worker_resolve",    # multiprocessing pool worker
+    "_tool_handler",      # MCP server internal attribute
+    "autocommit",         # PG connection attribute
+    "get_read_only_conn", # public API
+    "read_only_connection", # public property
+    "invalidate_file",    # public API
+    "hit_rate",           # public API
+    "delete_file",        # public API
+    "row_factory",        # SQLite connection attribute
+    "wait_ready",         # public API
+    "format",             # logging.Formatter method, called by framework
+    "insert",             # FTS5 repository public API method
+    "extension",          # UnsupportedExtension attribute, used externally
+    "on_modified",        # watchdog FileSystemEventHandler callback
+    "on_created",         # watchdog FileSystemEventHandler callback
+    "on_deleted",         # watchdog FileSystemEventHandler callback
+    "on_moved",           # watchdog FileSystemEventHandler callback
+]

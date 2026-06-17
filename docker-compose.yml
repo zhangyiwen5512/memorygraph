@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  memorygraph:
+    image: zhangyiwen5512/memorygraph:latest
+    container_name: memorygraph
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./:/project
+      - memorygraph_data:/home/memorygraph/.memorygraph
+    environment:
+      - PGHOST=${PGHOST:-}
+      - PGPORT=${PGPORT:-5432}
+      - PGDATABASE=${PGDATABASE:-memorygraph}
+      - PGUSER=${PGUSER:-memorygraph}
+      - PGPASSWORD=${PGPASSWORD:-memorygraph}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "memorygraph", "doctor", "--project-root", "/project"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+
+  watch:
+    image: zhangyiwen5512/memorygraph:latest
+    container_name: memorygraph-watch
+    command: ["watch", "--native", "--project-root", "/project"]
+    volumes:
+      - ./:/project
+      - memorygraph_data:/home/memorygraph/.memorygraph
+    restart: unless-stopped
+    profiles: [watch]
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: memorygraph-pg
+    environment:
+      POSTGRES_USER: memorygraph
+      POSTGRES_PASSWORD: memorygraph
+      POSTGRES_DB: memorygraph
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U memorygraph"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles: [postgres]
+
+volumes:
+  memorygraph_data:
+  pg_data:
